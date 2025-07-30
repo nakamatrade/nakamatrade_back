@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: NakamaTrade
+  config:
+    import: optional:env-${spring.profiles.active}.properties
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 255MB
+      max-request-size: 255MB
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl.auto: update
+        highlight_sql: true
+        implicit_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    open-in-view: false
+    show-sql: true
+
+  profiles:
+    active: local
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics

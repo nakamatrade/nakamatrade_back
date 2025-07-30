@@ -1,0 +1,15 @@
+spring:
+  config:
+    import: "env-local.properties"
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+    hikari:
+      auto-commit: false
+      connection-test-query: SELECT 1
+      minimum-idle: 10
+      maximum-pool-size: 30
+      pool-name: pool-nakama-db
