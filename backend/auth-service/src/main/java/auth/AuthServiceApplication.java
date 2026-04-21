@@ -1,13 +1,11 @@
-package com.nakamatrade.backend;
+package auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BackendApplication {
-
+public class AuthServiceApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(BackendApplication.class, args);
-	}
-
+        SpringApplication.run(AuthServiceApplication.class, args);
+    }
 }
