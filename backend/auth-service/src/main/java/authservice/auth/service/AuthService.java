@@ -1,5 +1,6 @@
 package authservice.auth.service;
 
+import authservice.global.exception.BusinessException;
 import authservice.user.domain.Role;
 import authservice.user.repository.RoleRepository;
 
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import authservice.auth.dto.LoginRequest;
 import authservice.auth.dto.SignupRequest;
 import authservice.auth.dto.TokenDto;
-import authservice.global.exception.CustomAuthException;
 import authservice.global.exception.ErrorCode;
 import authservice.global.security.CustomUserDetails;
 import authservice.global.security.JwtProvider;
@@ -39,10 +39,10 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new CustomAuthException(ErrorCode.DUPLICATE_USERNAME);
+            throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
         }
         
-        Role role = roleRepository.findByType("USER").orElseThrow(()-> new CustomAuthException(ErrorCode.ROLE_NOT_FOUND));
+        Role role = roleRepository.findByType("USER").orElseThrow(()-> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
 
         User newUser = User.builder()
                 .username(request.username())
@@ -56,7 +56,7 @@ public class AuthService {
         userRepository.save(newUser);
     }
     
-    @Transactional(noRollbackFor = CustomAuthException.class)
+    @Transactional(noRollbackFor = BusinessException.class)
     public TokenDto login(LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -71,14 +71,14 @@ public class AuthService {
             return jwtProvider.generateToken(authentication);
         } catch (BadCredentialsException e) {
         	User user = userRepository.findByUsername(request.username())
-                    .orElseThrow(() -> new CustomAuthException(ErrorCode.USER_NOT_FOUND));
+                    .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
             user.recordLoginFailure();
             
             String errorMsg = "비밀번호가 일치하지 않습니다. (실패 횟수: " + user.getFailCount() + ")";
-            throw new CustomAuthException(ErrorCode.INVALID_PASSWORD, errorMsg);
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD, errorMsg);
         } catch (LockedException e) {
-        	throw new CustomAuthException(ErrorCode.ACCOUNT_LOCKED);
+        	throw new BusinessException(ErrorCode.ACCOUNT_LOCKED);
         }
     }
     

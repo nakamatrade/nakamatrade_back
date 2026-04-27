@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
+import authservice.global.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import authservice.auth.dto.TokenDto;
-import authservice.global.exception.CustomAuthException;
 import authservice.global.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -84,7 +84,7 @@ public class JwtProvider {
 		Claims claims = parseClaims(accessToken);
 		
 		if (claims.get(AUTHORITIES_KEY) == null) {
-			throw new CustomAuthException(ErrorCode.INVALID_TOKEN_AUTHORITY);
+			throw new BusinessException(ErrorCode.INVALID_TOKEN_AUTHORITY);
 		}
 		
 		Collection<? extends GrantedAuthority> authorities =
