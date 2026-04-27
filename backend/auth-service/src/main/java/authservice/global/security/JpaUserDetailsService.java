@@ -13,7 +13,7 @@ import authservice.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class JpaUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -22,6 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        return new CustomUserDetails(user);
+        return new UserPrincipal(user);
     }
 }
