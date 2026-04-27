@@ -12,17 +12,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Role {
+
     @Id
-    @Column(name = "auth_id") 
+    @Column(name = "auth_id")
     @Comment(value = "권한 PK")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role_type") 
+    @Column(name = "role_type")
     @Comment(value = "권한 타입")
     private String type;
 
-    @Column(name = "rm") 
+    @Column(name = "rm")
     @Comment(value = "권한에 관한 설명")
     private String description;
 

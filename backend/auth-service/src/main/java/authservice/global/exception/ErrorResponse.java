@@ -9,26 +9,26 @@ import lombok.Getter;
 
 @Getter
 public class ErrorResponse {
-    
+
     private final String errorCode;
     private final String message;
     private final LocalDateTime timestamp;
-    
-    // @Valid 유효성 검사 통과되지 못한 항목 담을 Map, 유효성 검사 통과시 JSON 직렬화에서 제외
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, String> validation;
 
-    public ErrorResponse(String errorCode, String message) {
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final Map<String, String> validation;
+
+    private ErrorResponse(String errorCode, String message, Map<String, String> validation) {
         this.errorCode = errorCode;
         this.message = message;
         this.timestamp = LocalDateTime.now();
+        this.validation = validation != null ? Map.copyOf(validation) : Map.of();
     }
-    
-    // Validation 에러를 담을 생성자
-    public ErrorResponse(String errorCode, String message, Map<String, String> validation) {
-        this.errorCode = errorCode;
-        this.message = message;
-        this.validation = validation;
-        this.timestamp = LocalDateTime.now();
+
+    public static ErrorResponse of(String errorCode, String message) {
+        return new ErrorResponse(errorCode, message, null);
+    }
+
+    public static ErrorResponse of(String errorCode, String message, Map<String, String> validation) {
+        return new ErrorResponse(errorCode, message, validation);
     }
 }

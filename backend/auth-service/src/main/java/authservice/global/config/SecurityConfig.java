@@ -1,6 +1,6 @@
 package authservice.global.config;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,11 +26,16 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-	
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	
-	@Value("${cors.url}")
-	private String CORS_ALLOW_URL;
+
+    private static final List<String> PUBLIC_ENDPOINTS = List.of(
+            "/api/auth/login", "/api/auth/register", "/api/auth/exists"
+    );
+    private static final List<String> ALLOWED_METHODS = List.of("GET", "POST", "PUT", "DELETE");
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${cors.url}")
+    private String corsAllowUrl;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -43,33 +48,34 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> 
+            .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/exists").permitAll()
+                .requestMatchers(PUBLIC_ENDPOINTS.toArray(String[]::new)).permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-    
+
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
-    
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-      CorsConfiguration configuration = new CorsConfiguration();
-      configuration.setAllowCredentials(true);
-      configuration.setAllowedOrigins(Arrays.asList(CORS_ALLOW_URL));
-      configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
-      configuration.setAllowedHeaders(Arrays.asList("*"));
-      configuration.setExposedHeaders(Arrays.asList("*"));
-      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-      source.registerCorsConfiguration("/**", configuration);
-      return source;
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedOrigins(List.of(corsAllowUrl));
+        configuration.setAllowedMethods(ALLOWED_METHODS);
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

@@ -13,7 +13,7 @@ import authservice.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class NakamaUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -22,6 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomAuthException(ErrorCode.USER_NOT_FOUND));
 
-        return new CustomUserDetails(user);
+        return new NakamaUserDetails(user);
     }
 }
