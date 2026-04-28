@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import authservice.role.domain.Role;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class User {
     
     @Column(name = "brdt", nullable = false)
     @Comment(value = "생년월일")
-    private String brithDay;
+    private String birthDay;
     
     @Column(name = "gender")
     @Comment(value = "성별")
@@ -56,10 +57,10 @@ public class User {
     private Role role;
 
     @Builder
-    public User(String username, String password, String brithDay, String gender) {
+    public User(String username, String password, String birthDay, String gender) {
         this.username = username;
         this.password = password;
-        this.brithDay = brithDay;
+        this.birthDay = birthDay;
         this.gender = gender;
     }
     

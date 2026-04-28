@@ -3,10 +3,9 @@ package authservice.user.service;
 import authservice.auth.dto.LoginRequest;
 import authservice.global.exception.BusinessException;
 import authservice.global.exception.ErrorCode;
-import authservice.user.domain.Role;
+import authservice.role.service.RoleService;
 import authservice.user.domain.User;
 import authservice.user.dto.SignupRequest;
-import authservice.user.repository.RoleRepository;
 import authservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,9 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
+	
+	private final RoleService roleService;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -28,16 +27,14 @@ public class UserService {
             throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
         }
 
-        Role role = roleRepository.findByType("USER").orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
-
         User newUser = User.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
-                .brithDay(request.birthDay())
+                .birthDay(request.birthDay())
                 .gender(request.gender())
                 .build();
 
-        newUser.setRole(role);
+        newUser.setRole(roleService.getInitialRoleForSignup());
 
         userRepository.save(newUser);
     }

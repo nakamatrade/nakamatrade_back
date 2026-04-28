@@ -1,7 +1,8 @@
 package authservice.global.utils;
 
-import authservice.user.domain.Role;
-import authservice.user.repository.RoleRepository;
+import authservice.role.domain.Role;
+import authservice.role.domain.RoleType;
+import authservice.role.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -14,12 +15,12 @@ public class RoleInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (!roleRepository.findByType(("USER")).isPresent()) {
-            roleRepository.save(new Role("USER", "일반사용자"));
+        if (!roleRepository.findByType(RoleType.USER).isPresent()) {
+            roleRepository.save(new Role(RoleType.USER));
         }
         
-        if (!roleRepository.findByType("ADMIN").isPresent()) {
-            roleRepository.save(new Role("ADMIN", "시스템 관리자"));
+        if (!roleRepository.findByType(RoleType.ADMIN).isPresent()) {
+            roleRepository.save(new Role(RoleType.ADMIN));
         }
     }
 }
