@@ -57,14 +57,11 @@ public class User {
     private Role role;
 
     @Builder
-    public User(String username, String password, String birthDay, String gender) {
+    public User(String username, String password, String birthDay, String gender, Role role) {
         this.username = username;
         this.password = password;
         this.birthDay = birthDay;
         this.gender = gender;
-    }
-    
-    public void setRole(Role role) {
         this.role = role;
     }
 

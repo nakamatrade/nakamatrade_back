@@ -3,9 +3,11 @@ package authservice.user.service;
 import authservice.auth.dto.LoginRequest;
 import authservice.global.exception.BusinessException;
 import authservice.global.exception.ErrorCode;
+import authservice.role.domain.Role;
 import authservice.role.service.RoleService;
 import authservice.user.domain.User;
 import authservice.user.dto.SignupRequest;
+import authservice.user.dto.SignupResponse;
 import authservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,21 +24,23 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup(SignupRequest request) {
+    public SignupResponse signup(SignupRequest request) {
         if (usernameExistsCheck(request.username())) {
             throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
         }
 
+        Role initialRole = roleService.getInitialRoleForSignup();
+        
         User newUser = User.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
                 .birthDay(request.birthDay())
                 .gender(request.gender())
+                .role(initialRole)
                 .build();
 
-        newUser.setRole(roleService.getInitialRoleForSignup());
-
-        userRepository.save(newUser);
+        User user = userRepository.save(newUser);
+        return SignupResponse.from(user);
     }
 
     public int handleLoginFailure(LoginRequest request) {
