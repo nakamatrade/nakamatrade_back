@@ -1,11 +1,11 @@
 package authservice.user.service;
 
 import authservice.auth.dto.LoginRequest;
-import authservice.auth.dto.SignupRequest;
 import authservice.global.exception.BusinessException;
 import authservice.global.exception.ErrorCode;
 import authservice.user.domain.Role;
 import authservice.user.domain.User;
+import authservice.user.dto.SignupRequest;
 import authservice.user.repository.RoleRepository;
 import authservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class UserService {
 
     @Transactional
     public void signup(SignupRequest request) {
-        if (usernameExistsCheck(request)) {
+        if (usernameExistsCheck(request.username())) {
             throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
         }
 
@@ -58,7 +58,7 @@ public class UserService {
         user.resetFailCount();
     }
 
-    public boolean usernameExistsCheck(SignupRequest request) {
-        return userRepository.existsByUsername(request.username());
+    public boolean usernameExistsCheck(String username) {
+        return userRepository.existsByUsername(username);
     }
 }
