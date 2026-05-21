@@ -37,6 +37,14 @@ public class User {
     @Column(name = "gender")
     @Comment(value = "성별")
     private String gender;
+
+    @Column(name = "email")
+    @Comment("이메일 주소")
+    private String email;
+
+    @Column(name = "nick_nm")
+    @Comment("사용자 별명")
+    private String nickname;
     
     @UpdateTimestamp
     @Column(name = "last_lgn_dt")
@@ -57,12 +65,22 @@ public class User {
     private Role role;
 
     @Builder
-    public User(String username, String password, String birthDay, String gender, Role role) {
+    public User(String username, String password, String birthDay, String gender, String email, String nickName, Role role) {
         this.username = username;
         this.password = password;
         this.birthDay = birthDay;
         this.gender = gender;
+        this.email = email;
+        this.nickname = nickName;
         this.role = role;
+    }
+
+    public void update(String password, String birthDay, String gender, String email, String nickName) {
+        this.password = password;
+        this.birthDay = birthDay;
+        this.gender = gender;
+        this.email = email;
+        this.nickname = nickName;
     }
 
     public void recordLoginFailure() {

@@ -1,18 +1,19 @@
 package authservice.user.controller;
 
 import authservice.global.exception.ErrorCode;
+import authservice.global.security.UserPrincipal;
 import authservice.global.swagger.ApiErrorResponse;
+import authservice.user.domain.User;
+import authservice.user.dto.UserRequest;
+import authservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import authservice.global.common.Result;
 import authservice.user.dto.SignupRequest;
@@ -48,6 +49,34 @@ public class UserController {
         SignupResponse signupResponse = userService.signup(request);
 
         return ResponseEntity.ok(Result.success(SIGNUP_SUCCESS_MESSAGE, signupResponse));
+    }
+
+    @Operation(summary = "사용자 정보 조회")
+    @ApiResponse(
+            responseCode = "200",
+            description = "전달된 JWT의 USER_ID를 기준으로 사용자 정보를 조회 및 반환한다."
+    )
+    @GetMapping("/profile")
+    public ResponseEntity<Result<UserResponse>> profile(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.valueOf(userDetails.getUsername());
+
+        UserResponse userResponse = userService.getUserProfile(userId);
+        return ResponseEntity.ok(Result.success(userResponse));
+    }
+
+    @Operation(summary = "유저 정보 수정")
+    @ApiResponse(
+            responseCode = "204",
+            description = "요청 파라미터로 전달된 정보를 기준으로 사용자 정보를 수정한다."
+    )
+    @PutMapping(value = "/update", produces = CONTENT_TYPE_JSON)
+    public ResponseEntity<Result<Void>> update(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UserRequest request) {
+        Long userId = Long.valueOf(userDetails.getUsername());
+
+        userService.updateUser(userId, request);
+        return ResponseEntity.ok(Result.noContent());
     }
 
     @Operation(summary = "유저 중복 확인")

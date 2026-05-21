@@ -8,6 +8,8 @@ import authservice.role.service.RoleService;
 import authservice.user.domain.User;
 import authservice.user.dto.SignupRequest;
 import authservice.user.dto.SignupResponse;
+import authservice.user.dto.UserRequest;
+import authservice.user.dto.UserResponse;
 import authservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,24 +24,23 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
-
-    @Transactional(readOnly = true)
-    public User findByUsername(String userName) {
-    	return userRepository.findByUsername(userName)
-    			.orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
-    }
     
     @Transactional(readOnly = true)
     public User findByIdWithRoles(Long userId) {
     	return userRepository.findByIdWithRoles(userId)
     			.orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
+
+    public UserResponse getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.from(user);
+    }
     
     @Transactional
     public SignupResponse signup(SignupRequest request) {
-        if (usernameExistsCheck(request.username())) {
-            throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
-        }
+        validateForSignup(request);
 
         Role initialRole = roleService.getInitialRoleForSignup();
         
@@ -53,6 +54,22 @@ public class UserService {
 
         User user = userRepository.save(newUser);
         return SignupResponse.from(user);
+    }
+
+    @Transactional
+    public void updateUser(Long userId, UserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        validateForUpdate(user, request);
+
+        user.update(
+                passwordEncoder.encode(request.password())
+                , request.birthDay()
+                , request.gender()
+                , request.email()
+                , request.nickname()
+        );
     }
 
     public int handleLoginFailure(LoginRequest request) {
@@ -71,8 +88,31 @@ public class UserService {
         user.resetFailCount();
     }
 
-    @Transactional
     public boolean usernameExistsCheck(String username) {
         return userRepository.existsByUsername(username);
+    }
+
+    private void validateForSignup(SignupRequest request) {
+        if (userRepository.existsByUsername(request.username())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
+        }
+        if (userRepository.existsByEmail(request.email())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        }
+        if (userRepository.existsByNickname(request.nickname())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+    }
+
+    private void validateForUpdate(User user, UserRequest request) {
+        if (!user.getEmail().equals(request.email())
+                && userRepository.existsByEmail(request.email())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        }
+
+        if (!user.getNickname().equals(request.nickname())
+                && userRepository.existsByNickname(request.nickname())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+        }
     }
 }

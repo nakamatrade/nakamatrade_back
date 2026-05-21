@@ -16,6 +16,9 @@ public enum ErrorCode implements DefaultErrorCode {
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "계정이 잠겼습니다. 비밀번호 찾기를 진행해주세요."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
     
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 사용된 이메일입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용된 닉네임입니다."),
+    
     // 유효성 검사 관련 에러
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     
