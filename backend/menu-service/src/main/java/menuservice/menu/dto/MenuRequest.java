@@ -25,12 +25,9 @@ public record MenuRequest (
 		@Schema(description = "부모 메뉴 ID")
 		Long parentId,
 		
-		@Schema(description = "최상위 메뉴 순번", example = "1")
-		Integer folderSn,
-		
-		@Schema(description = "상위메뉴 하위에 위치할 경우 메뉴 순번", example = "1")
-		Integer itemSn,
-		
+		@Schema(description = "정렬 순번", example = "1")
+		Integer orderSn,
+
 		@Schema(description = "메뉴를 노출할 권한", example = "USER")
         @NotNull(message = "권한을 입력해주세요.")
 		MenuRole role

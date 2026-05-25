@@ -1,10 +1,7 @@
 package menuservice.menu.dto;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,8 +20,7 @@ public record MenuResponse(
     MenuType type,
     MenuRole role,
     Long parentId,
-    Integer folderSn,
-    Integer itemSn,
+    Integer orderSn,
     List<MenuResponse> children
 ) {
     public static MenuResponse from(Menu menu) {
@@ -35,36 +31,12 @@ public record MenuResponse(
             menu.isUsed(),
             menu.getType(),
             menu.getRole(),
-            menu.getParentId(),
-            menu.getFolderSn(),
-            menu.getItemSn(),
-            new ArrayList<>()
+			menu.getParent() != null ? menu.getParent().getId() : null,
+			menu.getOrderSn(),
+			menu.getChildren().stream()
+					.map(MenuResponse::from)
+					.sorted(Comparator.comparingInt(m -> m.orderSn() != null ? m.orderSn() : 0))
+					.collect(Collectors.toList())
         );
-    }
-    
-    public static List<MenuResponse> assembleTree(List<Menu> menuList){
-    	Map<Long, MenuResponse> menuMap = menuList.stream()
-    			.map(MenuResponse::from)
-    			.collect(Collectors.toMap(MenuResponse::id, response -> response));
-    	
-    	List<MenuResponse> sortedMenuList = new ArrayList<>();
-    	
-    	for (MenuResponse menu : menuMap.values()) {
-    		if (Objects.isNull(menu.parentId())) {
-    			sortedMenuList.add(menu);
-    		} else {
-    			MenuResponse parent = menuMap.get(menu.parentId());
-    			
-    			if(Objects.nonNull(parent)) {
-    				parent.children().add(menu);
-    			}
-    		}
-    	}
-    	
-    	sortedMenuList.sort(Comparator.comparing(MenuResponse::folderSn));
-    	sortedMenuList.forEach(menu -> menu.children()
-    										.sort(Comparator.comparing(MenuResponse::itemSn)));
-        
-        return sortedMenuList;
     }
 }

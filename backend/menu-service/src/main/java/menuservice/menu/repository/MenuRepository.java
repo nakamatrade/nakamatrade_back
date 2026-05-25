@@ -5,41 +5,32 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import menuservice.menu.domain.Menu;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
 
-    @Query("SELECT MAX(m.folderSn) FROM Menu m WHERE m.parentId IS NULL")
-    Optional<Integer> findMaxFolderSnByParentIdIsNull();
+    @Query("SELECT m FROM Menu m LEFT JOIN FETCH m.parent ORDER BY \n" +
+            "        CASE WHEN m.parent IS NULL THEN 0 ELSE 1 END ASC, \n" +
+            "                  m.orderSn ASC NULLS LAST")
+    List<Menu> findAllOrderedByParentAndOrderSn();
 
-    @Query("SELECT MAX(m.itemSn) FROM Menu m WHERE m.parentId = :parentId")
-    Optional<Integer> findMaxItemSnByParentId(@Param("parentId") Long parentId);
-	
+    @Query("SELECT MAX(m.orderSn) FROM Menu m WHERE m.parent.id IS NULL")
+    Optional<Integer> findMaxOrderSnByParentIdIsNull();
+
+    @Query("SELECT MAX(m.orderSn) FROM Menu m WHERE m.parent.id = :parentId")
+    Optional<Integer> findMaxOrderSnByParentId(@Param("parentId") Long parentId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Menu m SET m.orderSn = m.orderSn + 1 WHERE m.parent.id IS NULL AND m.orderSn >= :targetOrderSn")
+    void shiftUpOrderSnAfterRoot(@Param("targetOrderSn") Integer targetOrderSn);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Menu m SET m.orderSn = m.orderSn + 1 WHERE m.parent.id = :parentId AND m.orderSn >= :targetOrderSn")
+    void shiftUpOrderSnAfter(@Param("parentId") Long parentId, @Param("targetOrderSn") Integer targetOrderSn);
+
     boolean existsByPath(String path);
     
     boolean existsByParentId(Long parentId);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Menu m SET m.folderSn = m.folderSn + 1 WHERE m.parentId IS NULL AND m.folderSn >= :targetFolderSn")
-    void shiftUpFolderSnAfter(@Param("targetFolderSn") Integer targetFolderSn);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Menu m SET m.itemSn = m.itemSn + 1 WHERE m.parentId = :parentId AND m.itemSn >= :targetItemSn")
-    void shiftUpItemSnAfter(@Param("parentId") Long parentId, @Param("targetItemSn") Integer targetItemSn);
-    
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Menu m SET m.folderSn = m.folderSn + 1 WHERE m.parentId IS NULL AND m.folderSn >= :newItemSn AND m.folderSn < :oldItemSn")
-    void shiftUpFolderSnBetween(@Param("newItemSn") Integer newItemSn, @Param("oldItemSn") Integer oldItemSn);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Menu m SET m.folderSn = m.folderSn - 1 WHERE m.parentId IS NULL AND m.folderSn > :oldItemSn AND m.folderSn <= :newItemSn")
-    void shiftDownFolderSnBetween(@Param("oldItemSn") Integer oldItemSn, @Param("newItemSn") Integer newItemSn);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Menu m SET m.itemSn = m.itemSn + 1 WHERE m.parentId = :parentId AND m.itemSn >= :newItemSn AND m.itemSn < :oldItemSn")
-    void shiftUpItemSnBetween(@Param("parentId") Long parentId, @Param("newItemSn") Integer newItemSn, @Param("oldItemSn") Integer oldItemSn);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Menu m SET m.itemSn = m.itemSn - 1 WHERE m.parentId = :parentId AND m.itemSn > :oldItemSn AND m.itemSn <= :newItemSn")
-    void shiftDownItemSnBetween(@Param("parentId") Long parentId, @Param("oldItemSn") Integer oldItemSn, @Param("newItemSn") Integer newItemSn);
 }

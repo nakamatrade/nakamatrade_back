@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode implements DefaultErrorCode {
     // 유효성 검사 관련 에러
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
+    MENU_LIST_NOT_FOUND(HttpStatus.NOT_FOUND, "메뉴 리스트를 찾을 수 없습니다."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 메뉴를 찾을 수 없습니다."),
     INVALID_MENU_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 메뉴 타입입니다."),
     INVALID_FOLDER_ID(HttpStatus.BAD_REQUEST, "상위 메뉴가 존재하지 않거나 폴더 타입이 아닙니다."),

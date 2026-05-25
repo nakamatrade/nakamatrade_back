@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import menuservice.menu.dto.MenuRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tb_com_menu")
 @Getter
@@ -42,37 +45,45 @@ public class Menu {
     @Comment(value = "메뉴 권한")
     private MenuRole role;
 
-    @Column(name = "parent_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
     @Comment(value = "상위 메뉴 ID")
-    private Long parentId;
-    
-    @Column(name = "folder_sn")
-    @Comment(value = "폴더 순번")
-    private Integer folderSn;
-    
-    @Column(name = "item_sn")
-    @Comment(value = "항목 순번")
-    private Integer itemSn;
-    
-    public static Menu of (MenuRequest requestDto, Long parentId, Integer folderSn, Integer itemSn) {
+    private Menu parent;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Menu> children = new ArrayList<>();
+
+    @Column(name = "order_sn")
+    @Comment(value = "정렬 순번")
+    private Integer orderSn;
+
+    public static Menu of (MenuRequest requestDto, Menu parentMenu, Integer orderSn) {
         return Menu.builder()
                 .name(requestDto.name())
                 .path(requestDto.path())
                 .isUsed(requestDto.isUsed())
                 .type(requestDto.type())
                 .role(requestDto.role())
-                .parentId(parentId)
-                .folderSn(folderSn)
-                .itemSn(itemSn)
+                .parent(parentMenu)
+                .orderSn(orderSn)
                 .build();
     }
     
-    public void update(MenuRequest request, Integer folderSn, Integer itemSn) {
+    public void update(MenuRequest request, Menu parentMenu) {
         this.name = request.name();
         this.path = request.path();
         this.type = request.type();
-        this.parentId = request.parentId();
-        this.folderSn = folderSn;
-        this.itemSn = itemSn;
+        this.parent = parentMenu;
+        this.orderSn = request.orderSn();
+    }
+
+    public void addChild(Menu child) {
+        this.children.add(child);
+        child.updateParent(this);
+    }
+
+    private void updateParent(Menu parent) {
+        this.parent = parent;
     }
 }
