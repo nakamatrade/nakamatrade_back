@@ -1,6 +1,8 @@
 package menuservice.menu.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,18 @@ public class MenuController {
         return Result.success(response);
     }
 
-    @Operation(summary = "메뉴 수정")
+    @Operation(
+            summary = "메뉴 수정",
+            parameters = {
+                    @Parameter(
+                            name = "menuId",
+                            description = "메뉴 ID",
+                            required = true,
+                            in = ParameterIn.PATH,
+                            example = "1"
+                    )
+            }
+    )
     @ApiResponse(
             responseCode = "200",
             description = "수정 성공시 응답메시지와 메뉴 정보가 반환된다."
@@ -54,7 +67,7 @@ public class MenuController {
             ErrorCode.FOLDER_HAS_CHILDREN_CANNOT_CHANGE,
             ErrorCode.ITEM_CANNOT_CHANGE_TO_FOLDER
     })
-    @PutMapping(name = "/{menuId}", produces = CONTENT_TYPE_JSON)
+    @PutMapping(value = "/{menuId}", produces = CONTENT_TYPE_JSON)
     public Result<Object> updateMenu(@PathVariable("menuId") Long menuId, @RequestBody MenuRequest request) {
         menuService.updateMenu(menuId, request);
 

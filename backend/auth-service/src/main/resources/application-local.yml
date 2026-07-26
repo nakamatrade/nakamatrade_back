@@ -13,3 +13,8 @@ spring:
       minimum-idle: 10
       maximum-pool-size: 30
       pool-name: pool-nakama-db
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}

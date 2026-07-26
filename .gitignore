@@ -37,7 +37,7 @@ out/
 .vscode/
 
 ### docker mountain ###
-/docker/postgres
+/docker/postgres-production-data
 /docker/redis
 
 ### env ###
