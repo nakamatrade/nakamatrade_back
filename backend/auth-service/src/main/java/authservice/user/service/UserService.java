@@ -47,6 +47,8 @@ public class UserService {
         User newUser = User.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
+                .email(request.email())
+                .nickName(request.nickname())
                 .birthDay(request.birthDay())
                 .gender(request.gender())
                 .role(initialRole)

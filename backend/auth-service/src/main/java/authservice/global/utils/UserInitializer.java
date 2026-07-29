@@ -1,5 +1,7 @@
 package authservice.global.utils;
 
+import authservice.role.domain.Role;
+import authservice.role.service.RoleService;
 import authservice.user.domain.User;
 import authservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,34 +13,40 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserInitializer implements ApplicationRunner {
+    private final RoleService roleService;
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        Role initialRole = roleService.getInitialRoleForSignup();
+
         User kmg = User.builder()
                 .username("kmg99")
                 .password(passwordEncoder.encode("kmg123"))
-                .birthDay("19990101")
-                .nickName("kmg")
                 .email("email1@email.com")
+                .nickName("kmg")
+                .birthDay("19990101")
+                .role(initialRole)
                 .build();
 
         User thy = User.builder()
                 .username("thy97")
                 .password(passwordEncoder.encode("thy123"))
-                .birthDay("19970101")
-                .nickName("thy")
                 .email("email2@email.com")
+                .nickName("thy")
+                .birthDay("19970101")
+                .role(initialRole)
                 .build();
 
         User ljh = User.builder()
                 .username("ljh99")
                 .password(passwordEncoder.encode("ljh123"))
-                .birthDay("19990101")
-                .nickName("ljh")
                 .email("email3@email.com")
+                .nickName("ljh")
+                .birthDay("19990101")
+                .role(initialRole)
                 .build();
 
         if(!userRepository.findByUsername(kmg.getUsername()).isPresent()){
