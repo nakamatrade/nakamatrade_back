@@ -9,6 +9,7 @@ import authservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +31,7 @@ public class UserController {
 
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final String SIGNUP_SUCCESS_MESSAGE = "회원가입이 완료되었습니다.";
+    private static final String SECURITY_REQUIREMENT_ACCESS_TOKEN = "Access Token";
 
     private final UserService userService;
 
@@ -51,7 +53,10 @@ public class UserController {
         return ResponseEntity.ok(Result.success(SIGNUP_SUCCESS_MESSAGE, signupResponse));
     }
 
-    @Operation(summary = "사용자 정보 조회")
+    @Operation(
+            summary = "사용자 정보 조회",
+            security = @SecurityRequirement(name = SECURITY_REQUIREMENT_ACCESS_TOKEN)
+    )
     @ApiResponse(
             responseCode = "200",
             description = "전달된 JWT의 USER_ID를 기준으로 사용자 정보를 조회 및 반환한다."
@@ -64,7 +69,10 @@ public class UserController {
         return ResponseEntity.ok(Result.success(userResponse));
     }
 
-    @Operation(summary = "유저 정보 수정")
+    @Operation(
+            summary = "유저 정보 수정",
+            security = @SecurityRequirement(name = SECURITY_REQUIREMENT_ACCESS_TOKEN)
+    )
     @ApiResponse(
             responseCode = "204",
             description = "요청 파라미터로 전달된 정보를 기준으로 사용자 정보를 수정한다."
