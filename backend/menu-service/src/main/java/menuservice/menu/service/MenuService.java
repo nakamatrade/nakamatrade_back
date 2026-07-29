@@ -76,7 +76,8 @@ public class MenuService {
         Integer newOrderSn = requestDto.orderSn();
 
         if (newOrderSn != null && !newOrderSn.equals(oldOrderSn)) {
-            shiftOrderSnByTargetOrderSn(menu.getParent().getId(), newOrderSn);
+            Long parentId = menu.getParent() != null ? menu.getParent().getId() : null;
+            shiftOrderSnByTargetOrderSn(parentId, newOrderSn);
         }
 
         menu.update(requestDto, menu.getParent());
